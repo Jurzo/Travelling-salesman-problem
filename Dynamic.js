@@ -1,30 +1,64 @@
+/**
+ * Solves the tour and modifies memo with distance values for
+ * subsets.
+ * @param {number[][]} m 
+ * @param {number[][]} memo 
+ * @param {number} S 
+ * @param {number} N 
+ */
 const solveDynamic = (m, memo, S, N) => {
+  // start from 3 due to setup solving all subsets up to size 2
   for (let r = 3; r <= N; r++) {
+    // generate all subsets of size r
+    // with N possible bit flags
     for (const subset of combinations(r, N)) {
       if (notIn(S, subset)) continue;
       for (let next = 0; next < N; next++) {
         if (next === S || notIn(next, subset)) continue;
+        // get the smaller subset without next
         const state = subset ^ (1 << next);
         let minDist = Infinity;
+        // check for the node with the best path to next
         for (let endNode = 0; endNode < N; endNode++) {
           if (endNode === S || endNode === next || notIn(endNode, subset)) continue;
           const newDistance = memo[endNode][state] + m[endNode][next];
           if (newDistance < minDist) minDist = newDistance;
         }
+        // store the distance shortest distance to next 
+        // with specified subset
         memo[next][subset] = minDist;
       }
     }
   }
 }
 
+/**
+ * Set the initial cost values from start for
+ * subpaths of length 2
+ * @param {number[][]} m 
+ * @param {number[][]} memo 
+ * @param {number} S 
+ * @param {number} N 
+ */
 const setup = (m, memo, S, N) => {
   for (let i = 0; i < N; i++) {
     if (i === S) continue;
+    // setting the bitflags for S and i
     memo[i][1 << S | 1 << i] = m[S][i];
   }
 }
 
+/**
+ * Calculates the minimum cost to complete tour. Requires the
+ * tour to be solved first.
+ * @param {number[][]} m 
+ * @param {number[][]} memo 
+ * @param {number} S 
+ * @param {number} N 
+ * @returns the minimal cost to complete tour
+ */
 const findMinCost = (m, memo, S, N) => {
+  // creates an integer with all N bits set to 1
   const endState = (1 << N) - 1;
   let minTourCost = Infinity;
 
@@ -37,31 +71,54 @@ const findMinCost = (m, memo, S, N) => {
   return minTourCost;
 }
 
+/**
+ * Generates the optimal tour. Requires the tour to be solved first.
+ * @param {number[][]} m 
+ * @param {number[][]} memo 
+ * @param {number} S 
+ * @param {number} N 
+ * @returns the tour with the minimal cost.
+ */
 const findOptimalTour = (m, memo, S, N) => {
   let lastIndex = S;
+  // creates an integer with all N bits set to 1
   let state = (1 << N) - 1;
   let tour = [];
 
   for (let i = N - 1; i >= 1; i--) {
     let index = -1;
+    // loop over all candidates for the next node
     for (let j = 0; j < N; j++) {
+      // skip if j equals start node or j is not part of state (available nodes)
       if (j === S || notIn(j, state)) continue;
       if (index === -1) index = j;
+      // get the cost of the previous best candidate
       const prevDist = memo[index][state] + m[index][lastIndex];
+      // get the cost of the current candidate
       const newDist = memo[j][state] + m[j][lastIndex];
+      // if new is better, set it as new best candidate
       if (newDist < prevDist) index = j;
     }
 
+    // set the best candidate in tour and remove it from state to
+    // not choose it again later
     tour[i] = index;
     state ^= (1 << index);
     lastIndex = index;
   }
 
+  // add starting node as the first and last node for the tour
   tour[0] = S;
   tour[N] = S;
   return tour;
 }
 
+/**
+ * 
+ * @param {number} r 
+ * @param {number} N 
+ * @returns a list of all integer combinations that have **r** bit flags set from **N** possibilities
+ */
 const combinations = (r, N) => {
   const subsets = [];
   genCombinations(0, 0, r, N, subsets);
@@ -84,6 +141,12 @@ const genCombinations = (set, at, r, N, subsets) => {
   }
 }
 
+/**
+ * 
+ * @param {number} i 
+ * @param {number} subset 
+ * @returns whether the **i**:th bit is set in **subset**.
+ */
 const notIn = (i, subset) => {
   return ((1 << i) & subset) === 0;
 }

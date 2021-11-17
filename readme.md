@@ -1,4 +1,4 @@
-
+## Dynamic programming soution
 
 1. Select a starting node (due to travelling a complete cycle it doesn't matter which one)
 2. Calculate distance from starting node to all other nodes, solving all paths of length 2
@@ -10,7 +10,6 @@
      - this restricts the amount nodes that could be handled but the computational time would be too high either way
 5. Expand the subpaths until all nodes have been visited
 6. Loop over the generated full paths and minimize the value to get there okus the distance to start
-
 
 
 pseudocode by WilliamFiset: https://youtu.be/cY4HiiFHO1o?t=573
