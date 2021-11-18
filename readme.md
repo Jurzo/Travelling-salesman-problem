@@ -25,8 +25,9 @@ Based on video and pseudocode by WilliamFiset: https://youtu.be/cY4HiiFHO1o
 1. Place N number of ants onto random nodes
 2. Each ant chooses a node it hasn't been to yet
   - calculate a "desirability" to each node with "pheromones" and distance
-  - choose next city randomly weighted by desirability
+  - choose next node randomly weighted by desirability
   - mark node as visited
+3. When all nodes have been visited, return to start node
 3. Calculate tour lengths and fitness for each ant
   - add pheromones to each ant's trail based on fitness
   - fade pheromone trail

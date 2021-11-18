@@ -14,22 +14,43 @@ const distMat = [
   [6, 5, -4, 0], // 3
 ];
 
-const nodes = generateNodes(10, 30);
+const nodes = generateNodes(22, 30);
 const mat = generateMatrix(nodes);
-const colony = new AntColony(10, mat);
-colony.initTour();
-while (true) {
-  if (colony.travel()) {
-    break;
+const colony = new AntColony(100, mat);
+let start = performance.now();
+let now;
+const dynamicRes = getPathDynamic(mat, 0);
+now = performance.now();
+console.log(`Dynamic took ${(now - start).toFixed(2)} milliseconds`);
+start = now;
+outer: while (true) {
+  colony.initTour();
+  generation: while (true) {
+    if (colony.travel()) {
+      break generation;
+    }
   }
+  colony.finishTour();
+  colony.updatePheromone();
+  const antBest = colony.best.cost;
+  const diff = (antBest / dynamicRes.cost) - 1;
+  if (diff < 0.05) {
+    console.log(colony.getBest(), dynamicRes);
+    now = performance.now();
+    console.log(`Ants took ${(now - start).toFixed(2)} milliseconds`);
+    break outer;
+  }
+  //console.log(colony.pheromoneTrail);
 }
-console.log(colony.ants);
-console.log(getPathDynamic(mat, 0));
+
+/* let now = performance.now();
+console.log(`Ants took ${(now-start).toFixed(2)} milliseconds`);
+console.log(colony.getBest());
+console.log(getPathDynamic(mat, 0)); */
 /* let start = performance.now();
 console.log(getPathBrute(mat, 3, mat.length));
 let now = performance.now();
 console.log(`Brute force took ${(now-start).toFixed(2)} milliseconds`);
 start = now;
 console.log(getPathDynamic(mat, 3));
-now = performance.now();
 console.log(`Dynamic took ${(now-start).toFixed(2)} milliseconds`); */

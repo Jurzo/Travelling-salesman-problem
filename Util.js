@@ -46,6 +46,18 @@ export const generateMatrix = (nodes) => {
   return matrix;
 }
 
+export const generateEmptyMatrix = (sideLength) => {
+  const matrix = [];
+  for (let i = 0; i < sideLength; i++) {
+    const row = [];
+    for (let j = 0; j < sideLength; j++) {
+      row.push(0);
+    }
+    matrix.push(row);
+  }
+  return matrix;
+}
+
 // https://stackoverflow.com/a/20871714
 /**
  * returns all permutations from input array
