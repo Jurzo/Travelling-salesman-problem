@@ -14,7 +14,7 @@ const distMat = [
   [6, 5, -4, 0], // 3
 ];
 
-const nodes = generateNodes(22, 30);
+const nodes = generateNodes(19, 30);
 const mat = generateMatrix(nodes);
 const colony = new AntColony(100, mat);
 let start = performance.now();

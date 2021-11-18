@@ -22,6 +22,9 @@ export class AntColony {
     return this.ants[this.best.idx];
   }
 
+  /**
+   * Initialize ants for travelling through nodes.
+   */
   initTour() {
     for (let i = 0; i < this.numAnts; i++) {
       if (!this.ants[i]) this.ants[i] = {};
@@ -37,6 +40,10 @@ export class AntColony {
     this.stage++;
   }
 
+  /**
+   * Each ant travels to a node they have not yet been to.
+   * @returns whether the tour is complete.
+   */
   travel() {
     if (this.stage < this.size) {
       for (const ant of this.ants) {
@@ -60,6 +67,12 @@ export class AntColony {
     }
   }
 
+  /**
+   * Choose a node for given ant it has not been to yet
+   * based on the desirability of the node.
+   * @param {*} ant 
+   * @returns index of chosen node.
+   */
   chooseNode(ant) {
     let total = 0;
     for (let n = 0; n < this.size; n++) {
@@ -81,6 +94,10 @@ export class AntColony {
     return next;
   }
 
+  /**
+   * Wrap up the tour by calculating the best tour from every ant
+   * and add *pheromones* to pheromoneDelta based on ant fitness.
+   */
   finishTour() {
     for (let i = 0; i < this.ants.length; i++) {
       const ant = this.ants[i];
@@ -99,12 +116,15 @@ export class AntColony {
     this.stage = 0;
   }
 
+  /**
+   * Fade pheromone trail and add new pheromones to it.
+   */
   updatePheromone() {
     for (let i = 0; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
         if (i === j) continue;
 
-        this.pheromoneTrail[i][j] *= 0.98;
+        this.pheromoneTrail[i][j] *= 0.5;
         this.pheromoneTrail[i][j] += this.pheromoneDelta[i][j];
         this.pheromoneDelta[i][j] = 0;
 
@@ -112,6 +132,13 @@ export class AntColony {
     }
   }
 
+  /**
+   * Calculates *desirability* based on distance to target node
+   * and the strength of the pheromone trail.
+   * @param {number} startNode 
+   * @param {number} endNode 
+   * @returns *desirability*
+   */
   desirability(startNode, endNode) {
     const pheromone = Math.pow(this.pheromoneTrail[startNode][endNode], PH);
     const distance = Math.pow(1 / this.m[startNode][endNode], DST);
