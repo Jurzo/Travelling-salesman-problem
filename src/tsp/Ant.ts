@@ -1,7 +1,7 @@
-import { generateEmptyMatrix, generateMatrix, generateNodes } from "./Util.js";
+import { generateEmptyMatrix, generateMatrix, generateNodes } from "./Util";
 
-const ALPHA = 1.0;
-const BETA = 1.0;
+const ALPHA = 1;
+const BETA = 2.0;
 const OMEGA = 0.5;
 
 interface Ant {
@@ -42,6 +42,17 @@ export class AntColony {
 
   public getBest(): Ant {
     return this.ants[this.best.idx];
+  }
+
+  public getTrailAvg(): number {
+    let sum = 0;
+    for (let i = 0; i < this.size; i++) {
+      for (let j = 0; j < this.size; j++) {
+        if (j === i) continue;
+        sum += this.pheromoneTrail[i][j];
+      }
+    }
+    return sum / this.size;
   }
 
   /**
@@ -112,7 +123,9 @@ export class AntColony {
 
       const weight = this.desirability(ant.current, next);
       const rand = Math.random();
-      if (rand < weight) break;
+      if (rand < weight) {
+        break;
+      };
     }
     return next;
   }
@@ -133,7 +146,7 @@ export class AntColony {
     for (const ant of this.ants) {
       for (let i = 1; i < ant.tour.length; i++) {
         const trail = this.best.cost / ant.cost;
-        this.pheromoneDelta[ant.tour[i - 1]][ant.tour[i]] += (trail * trail) / this.ants.length;
+        this.pheromoneDelta[ant.tour[i - 1]][ant.tour[i]] += trail / this.ants.length;
       }
     }
     this.stage = 0;

@@ -1,12 +1,16 @@
+interface Memo {
+  [key: number]: number
+}
+
 /**
  * Solves the tour and modifies memo with distance values for
  * subsets.
  * @param {number[][]} m 
- * @param {number[][]} memo 
+ * @param {Memo[]} memo 
  * @param {number} S 
  * @param {number} N 
  */
-const solveDynamic = (m, memo, S, N) => {
+const solveDynamic = (m: number[][], memo: Memo[], S: number, N: number): void => {
   // start from 3 due to setup solving all subsets up to size 2
   for (let r = 3; r <= N; r++) {
     // generate all subsets of size r
@@ -36,15 +40,15 @@ const solveDynamic = (m, memo, S, N) => {
  * Set the initial cost values from start for
  * subpaths of length 2
  * @param {number[][]} m 
- * @param {number[][]} memo 
+ * @param {Memo[]} memo 
  * @param {number} S 
  * @param {number} N 
  */
-const setup = (m, memo, S, N) => {
+const setup = (m: number[][], memo: Memo[], S: number, N: number): void => {
   for (let i = 0; i < N; i++) {
     if (i === S) continue;
     // setting the bitflags for S and i
-    memo[i][1 << S | 1 << i] = m[S][i];
+    memo[i][(1 << S) | (1 << i)] = m[S][i];
   }
 }
 
@@ -52,12 +56,12 @@ const setup = (m, memo, S, N) => {
  * Calculates the minimum cost to complete tour. Requires the
  * tour to be solved first.
  * @param {number[][]} m 
- * @param {number[][]} memo 
+ * @param {Memo[]} memo 
  * @param {number} S 
  * @param {number} N 
  * @returns the minimal cost to complete tour
  */
-const findMinCost = (m, memo, S, N) => {
+const findMinCost = (m: number[][], memo: Memo[], S: number, N: number): number => {
   // creates an integer with all N bits set to 1
   const endState = (1 << N) - 1;
   let minTourCost = Infinity;
@@ -74,16 +78,16 @@ const findMinCost = (m, memo, S, N) => {
 /**
  * Generates the optimal tour. Requires the tour to be solved first.
  * @param {number[][]} m 
- * @param {number[][]} memo 
+ * @param {Memo[]} memo 
  * @param {number} S 
  * @param {number} N 
  * @returns the tour with the minimal cost.
  */
-const findOptimalTour = (m, memo, S, N) => {
+const findOptimalTour = (m: number[][], memo: Memo[], S: number, N: number): number[] => {
   let lastIndex = S;
   // creates an integer with all N bits set to 1
   let state = (1 << N) - 1;
-  let tour = [];
+  let tour: number[] = [];
 
   for (let i = N - 1; i >= 1; i--) {
     let index = -1;
@@ -119,18 +123,18 @@ const findOptimalTour = (m, memo, S, N) => {
  * @param {number} N 
  * @returns a list of all integer combinations that have **r** bit flags set from **N** possibilities
  */
-const combinations = (r, N) => {
-  const subsets = [];
+const combinations = (r: number, N: number): number[] => {
+  const subsets: number[] = [];
   genCombinations(0, 0, r, N, subsets);
   return subsets;
 }
 
-const genCombinations = (set, at, r, N, subsets) => {
+const genCombinations = (set: number, at: number, r: number, N: number, subsets: number[]): number | void => {
   const elementsLeft = N - at;
   if (elementsLeft < r) return;
 
   // r bits set to 1 -> push to array
-  if (r == 0) {
+  if (r === 0) {
     subsets.push(set);
   } else {
     for (let i = at; i < N; i++) {
@@ -147,23 +151,27 @@ const genCombinations = (set, at, r, N, subsets) => {
  * @param {number} subset 
  * @returns whether the **i**:th bit is set in **subset**.
  */
-const notIn = (i, subset) => {
+const notIn = (i: number, subset: number): boolean => {
   return ((1 << i) & subset) === 0;
 }
 
-export const getPathDynamic = (m, S) => {
-  const length = m.length;
-  const memo = [];
-  for (let i = 0; i < length; i++) {
-    memo.push([]);
-  }
-  setup(m, memo, S, length);
-  solveDynamic(m, memo, S, length);
+export const getPathDynamic =
+  (m: number[][], S: number): {
+    cost: number,
+    route: number[]
+  } | null => {
+    const length = m.length;
+    const memo: Memo[] = [];
+    for (let i = 0; i < length; i++) {
+      memo.push({});
+    }
+    setup(m, memo, S, length);
+    solveDynamic(m, memo, S, length);
 
-  const cost = findMinCost(m, memo, S, length);
-  const path = findOptimalTour(m, memo, S, length);
-  return {
-    cost: cost,
-    route: path
+    const cost = findMinCost(m, memo, S, length);
+    const path = findOptimalTour(m, memo, S, length);
+    return {
+      cost: cost,
+      route: path
+    }
   }
-}

@@ -5,7 +5,7 @@
  * @returns an array of size "length" with points with values from "-bounds" to "bounds"
  */
 export const generateNodes = (length: number, bounds: number): [number, number][] => {
-  const nodes = [];
+  const nodes: [number, number][] = [];
   for (let i = 0; i < length; i++) {
     const x = Math.random() * bounds * 2 - bounds;
     const y = Math.random() * bounds * 2 - bounds;
@@ -61,11 +61,11 @@ export const generateEmptyMatrix = (sideLength: number): number[][] => {
 // https://stackoverflow.com/a/20871714
 /**
  * returns all permutations from input array
- * @param {any[]} inputArr 
+ * @param {number[]} inputArr 
  * @returns list of permutations
  */
-export const permutator = (inputArr: any[]): any[][] => {
-  let result: any[] = [];
+export const permutator = (inputArr: number[]): number[][] => {
+  let result: number[][] = [];
 
   const permute = (arr: any[], m: any[] = []) => {
     if (arr.length === 0) {

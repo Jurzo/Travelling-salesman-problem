@@ -18,7 +18,7 @@ const nodes = generateNodes(19, 30);
 const mat = generateMatrix(nodes);
 const colony = new AntColony(100, mat);
 let start = performance.now();
-let now;
+let now: number;
 const dynamicRes = getPathDynamic(mat, 0);
 now = performance.now();
 console.log(`Dynamic took ${(now - start).toFixed(2)} milliseconds`);
@@ -31,15 +31,17 @@ outer: while (true) {
     }
   }
   colony.finishTour();
-  colony.updatePheromone();
-  const antBest = colony.best.cost;
-  const diff = (antBest / dynamicRes.cost) - 1;
-  if (diff < 0.05) {
-    console.log(colony.getBest(), dynamicRes);
-    now = performance.now();
-    console.log(`Ants took ${(now - start).toFixed(2)} milliseconds`);
-    break outer;
+  const antBest = colony.getBest();
+  if (dynamicRes !== null) {
+    const diff = (antBest.cost / dynamicRes.cost) - 1;
+    if (diff < 0.05) {
+      console.log(antBest, dynamicRes);
+      now = performance.now();
+      console.log(`Ants took ${(now - start).toFixed(2)} milliseconds`);
+      break outer;
+    }
   }
+
   //console.log(colony.pheromoneTrail);
 }
 
