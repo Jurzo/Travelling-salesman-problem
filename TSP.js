@@ -18,6 +18,13 @@ const nodes = generateNodes(10, 30);
 const mat = generateMatrix(nodes);
 const colony = new AntColony(10, mat);
 colony.initTour();
+while (true) {
+  if (colony.travel()) {
+    break;
+  }
+}
+console.log(colony.ants);
+console.log(getPathDynamic(mat, 0));
 /* let start = performance.now();
 console.log(getPathBrute(mat, 3, mat.length));
 let now = performance.now();
