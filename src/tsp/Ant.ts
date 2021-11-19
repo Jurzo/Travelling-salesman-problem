@@ -1,8 +1,8 @@
-import { generateEmptyMatrix, generateMatrix, generateNodes } from "./Util";
+import { generateEmptyMatrix, generateMatrix, generateNodes, fillMatrix } from "./Util";
 
-const ALPHA = 1;
-const BETA = 2.0;
-const OMEGA = 0.5;
+const PHEROMONE_POW = 1;
+const DIST_POW = 3;
+const FADE = 0.5;
 
 interface Ant {
   current: number;
@@ -31,7 +31,8 @@ export class AntColony {
     this.m = distMatrix;
     this.size = distMatrix.length;
     this.ants = [];
-    this.pheromoneTrail = generateMatrix(generateNodes(this.size, 1));
+    this.pheromoneTrail = generateEmptyMatrix(this.size);
+    fillMatrix(this.pheromoneTrail, 1);
     this.pheromoneDelta = generateEmptyMatrix(this.size);
     this.best = {
       idx: -1,
@@ -46,13 +47,15 @@ export class AntColony {
 
   public getTrailAvg(): number {
     let sum = 0;
+    let count = 0;
     for (let i = 0; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
         if (j === i) continue;
         sum += this.pheromoneTrail[i][j];
+        count++;
       }
     }
-    return sum / this.size;
+    return sum / count;
   }
 
   /**
@@ -121,7 +124,7 @@ export class AntColony {
       };
       if (ant.visited[next] === 1) continue;
 
-      const weight = this.desirability(ant.current, next);
+      const weight = this.desirability(ant.current, next) / total;
       const rand = Math.random();
       if (rand < weight) {
         break;
@@ -146,7 +149,7 @@ export class AntColony {
     for (const ant of this.ants) {
       for (let i = 1; i < ant.tour.length; i++) {
         const trail = this.best.cost / ant.cost;
-        this.pheromoneDelta[ant.tour[i - 1]][ant.tour[i]] += trail / this.ants.length;
+        this.pheromoneDelta[ant.tour[i - 1]][ant.tour[i]] += trail;
       }
     }
     this.stage = 0;
@@ -162,7 +165,7 @@ export class AntColony {
       for (let j = 0; j < this.size; j++) {
         if (i === j) continue;
 
-        this.pheromoneTrail[i][j] *= OMEGA;
+        this.pheromoneTrail[i][j] *= FADE;
         this.pheromoneTrail[i][j] += this.pheromoneDelta[i][j];
         this.pheromoneDelta[i][j] = 0;
 
@@ -178,8 +181,8 @@ export class AntColony {
    * @returns *desirability*
    */
   desirability(startNode: number, endNode: number): number {
-    const pheromone = Math.pow(this.pheromoneTrail[startNode][endNode], ALPHA);
-    const distance = Math.pow(1 / this.m[startNode][endNode], BETA);
+    const pheromone = Math.pow(this.pheromoneTrail[startNode][endNode], PHEROMONE_POW);
+    const distance = Math.pow(1 / this.m[startNode][endNode], DIST_POW);
     return pheromone * distance;
   }
 }

@@ -58,6 +58,15 @@ export const generateEmptyMatrix = (sideLength: number): number[][] => {
   return matrix;
 }
 
+export const fillMatrix = (matrix: number[][], num: number): void => {
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix.length; j++) {
+      if (i === j) continue;
+      matrix[i][j] = num;
+    }
+  }
+}
+
 // https://stackoverflow.com/a/20871714
 /**
  * returns all permutations from input array
@@ -82,4 +91,10 @@ export const permutator = (inputArr: number[]): number[][] => {
   permute(inputArr);
 
   return result;
+}
+
+export const nodesToSingleArray = (nodes: [number, number][]): number[] => {
+  const arr: number[] = [];
+  nodes.forEach(node => arr.push(...node));
+  return arr;
 }

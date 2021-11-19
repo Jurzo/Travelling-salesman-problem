@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import { getPathDynamic } from './tsp/Dynamic';
 import { AntColony } from './tsp/Ant';
 import * as Util from './tsp/Util';
+import Visualizer from './components/Visualizer';
 
 function App() {
 
   useEffect(() => {
-    const mat = Util.generateMatrix(Util.generateNodes(20, 30));
-    const colony = new AntColony(100, mat);
+    /* const mat = Util.generateMatrix(Util.generateNodes(100, 1));
+    const colony = new AntColony(400, mat);
     for (let i = 0; i < 100; i++) {
       colony.initTour();
       while (true) {
@@ -17,28 +17,13 @@ function App() {
       }
       console.log(`${i} -- ${colony.getTrailAvg()}`);
       colony.finishTour();
-      console.log(colony.getBest());
+      console.log(colony.getBest().cost);
     }
-    console.log(getPathDynamic(mat, 0));
+    //console.log(getPathDynamic(mat, 0)); */
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Visualizer width={600} height={600} />
   );
 }
 
