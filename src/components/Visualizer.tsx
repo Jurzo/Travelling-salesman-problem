@@ -14,7 +14,7 @@ interface Size {
 function Visualizer({ width, height }: Size): JSX.Element {
   const engine = useRef<Engine | null>(null);
   const colony = useRef<AntColony | null>(null);
-  const nodes = generateNodes(50, SCALE);
+  const nodes = generateNodes(20, SCALE);
   const mat = generateMatrix(nodes);
 
   useEffect(() => {

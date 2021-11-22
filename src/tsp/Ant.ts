@@ -1,8 +1,8 @@
 import { generateEmptyMatrix, fillMatrix } from "./Util";
 
 const PHEROMONE_POW = 1;
-const DIST_POW = 3;
-const FADE = 0.5;
+const DIST_POW = 4;
+const FADE = 0.9;
 
 interface Ant {
   current: number;
