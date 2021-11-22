@@ -4,6 +4,8 @@ import { getPathDynamic } from "../tsp/Dynamic";
 import { generateMatrix, generateNodes, nodesToSingleArray } from "../tsp/Util";
 import { Engine } from "./Engine";
 
+const SCALE = 10;
+
 interface Size {
   width: number,
   height: number,
@@ -12,7 +14,7 @@ interface Size {
 function Visualizer({ width, height }: Size): JSX.Element {
   const engine = useRef<Engine | null>(null);
   const colony = useRef<AntColony | null>(null);
-  const nodes = generateNodes(20, 1);
+  const nodes = generateNodes(50, SCALE);
   const mat = generateMatrix(nodes);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ function Visualizer({ width, height }: Size): JSX.Element {
     engine.current = new Engine(canvas);
     engine.current.start();
     colony.current = new AntColony(200, mat);
-
+    //console.log(getPathDynamic(mat, 0));
   }, []);
 
   const start = () => {
@@ -33,8 +35,7 @@ function Visualizer({ width, height }: Size): JSX.Element {
       }
       colony.current.finishTour();
       const { tour, cost } = colony.current.getBest();
-      /* const {route} =  getPathDynamic(mat, 0)!; */
-      engine.current.genVAO(nodesToSingleArray(nodes), tour);
+      engine.current.genNodeVAO(nodesToSingleArray(nodes, SCALE), tour);
       console.log(cost);
       console.log('---', colony.current.getTrailAvg());
     }

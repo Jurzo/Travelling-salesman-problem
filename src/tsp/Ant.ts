@@ -1,4 +1,4 @@
-import { generateEmptyMatrix, generateMatrix, generateNodes, fillMatrix } from "./Util";
+import { generateEmptyMatrix, fillMatrix } from "./Util";
 
 const PHEROMONE_POW = 1;
 const DIST_POW = 3;
@@ -149,7 +149,7 @@ export class AntColony {
     for (const ant of this.ants) {
       for (let i = 1; i < ant.tour.length; i++) {
         const trail = this.best.cost / ant.cost;
-        this.pheromoneDelta[ant.tour[i - 1]][ant.tour[i]] += trail;
+        this.pheromoneDelta[ant.tour[i - 1]][ant.tour[i]] += trail / this.ants.length;
       }
     }
     this.stage = 0;

@@ -158,7 +158,7 @@ const notIn = (i: number, subset: number): boolean => {
 export const getPathDynamic =
   (m: number[][], S: number): {
     cost: number,
-    route: number[]
+    tour: number[]
   } | null => {
     const length = m.length;
     const memo: Memo[] = [];
@@ -172,6 +172,6 @@ export const getPathDynamic =
     const path = findOptimalTour(m, memo, S, length);
     return {
       cost: cost,
-      route: path
+      tour: path
     }
   }

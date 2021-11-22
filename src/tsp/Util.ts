@@ -93,8 +93,11 @@ export const permutator = (inputArr: number[]): number[][] => {
   return result;
 }
 
-export const nodesToSingleArray = (nodes: [number, number][]): number[] => {
+export const nodesToSingleArray = (nodes: [number, number][], scale: number): number[] => {
   const arr: number[] = [];
-  nodes.forEach(node => arr.push(...node));
+  nodes.forEach(node => {
+    arr.push(node[0] / scale);
+    arr.push(node[1] / scale);
+  });
   return arr;
 }

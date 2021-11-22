@@ -4,13 +4,11 @@ import { Shader } from "../util/Shader";
 
 export class Engine {
     private gl: WebGL2RenderingContext;
-    private canvas: HTMLCanvasElement;
     private shader: Shader;
     private VAO: WebGLVertexArrayObject | null;
     private indices: number;
 
     constructor(canvas: HTMLCanvasElement) {
-        this.canvas = canvas;
         this.gl = getGLContext(canvas);
         this.shader = this.loadShaders();
         this.VAO = null;
@@ -36,13 +34,9 @@ export class Engine {
         requestAnimationFrame(this.loop.bind(this));
     }
 
-    public genVAO(vertices: number[], indices: number[]): void {
-
-        this.indices = indices.length;
-
+    public genVAO(vertices: number[]): WebGLVertexArrayObject {
         const VAO = this.gl.createVertexArray()!;
         const VBO = this.gl.createBuffer()!;
-        const EBO = this.gl.createBuffer()!;
 
         this.gl.bindVertexArray(VAO);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, VBO);
@@ -51,10 +45,25 @@ export class Engine {
         this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, 0, 0);
         this.gl.enableVertexAttribArray(0);
 
+        this.gl.bindVertexArray(null);
+
+        return VAO;
+    }
+
+    public genIndexData(VAO: WebGLVertexArrayObject, indices: number[]): void {
+        const EBO = this.gl.createBuffer()!;
+        this.indices = indices.length;
+        this.gl.bindVertexArray(VAO);
+
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, EBO);
         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), this.gl.STATIC_DRAW);
 
         this.gl.bindVertexArray(null);
+    }
+
+    public genNodeVAO(vertices: number[], indices: number[]): void {
+        const VAO = this.genVAO(vertices);
+        this.genIndexData(VAO, indices);
 
         this.VAO = VAO;
     }
