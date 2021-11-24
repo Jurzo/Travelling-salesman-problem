@@ -1,8 +1,8 @@
 import { generateEmptyMatrix, fillMatrix } from "./Util";
 
 const PHEROMONE_POW = 1;
-const DIST_POW = 4;
-const FADE = 0.9;
+const DIST_POW = 2;
+const FADE = 0.5;
 
 interface Ant {
   current: number;
@@ -21,12 +21,14 @@ export class AntColony {
   private pheromoneTrail: number[][];
   private pheromoneDelta: number[][];
   private stage: number;
-  private best: {
+  private genBest: {
     idx: number,
     cost: number
   };
+  private bestCost: number;
 
   constructor(numAnts: number, distMatrix: number[][]) {
+    this.bestCost = Infinity;
     this.numAnts = numAnts;
     this.m = distMatrix;
     this.size = distMatrix.length;
@@ -34,7 +36,7 @@ export class AntColony {
     this.pheromoneTrail = generateEmptyMatrix(this.size);
     fillMatrix(this.pheromoneTrail, 1);
     this.pheromoneDelta = generateEmptyMatrix(this.size);
-    this.best = {
+    this.genBest = {
       idx: -1,
       cost: Infinity
     };
@@ -42,7 +44,11 @@ export class AntColony {
   }
 
   public getBest(): Ant {
-    return this.ants[this.best.idx];
+    return this.ants[this.genBest.idx];
+  }
+
+  public getTrail(): number[][] {
+    return this.pheromoneTrail;
   }
 
   public getTrailAvg(): number {
@@ -140,15 +146,17 @@ export class AntColony {
   public finishTour(): void {
     for (let i = 0; i < this.ants.length; i++) {
       const ant = this.ants[i];
-      if (ant.cost < this.best.cost) {
-        this.best.cost = ant.cost;
-        this.best.idx = i;
+      if (ant.cost < this.genBest.cost) {
+        this.genBest.cost = ant.cost;
+        this.genBest.idx = i;
       }
     }
 
+    if (this.genBest.cost < this.bestCost) this.bestCost = this.genBest.cost;
+
     for (const ant of this.ants) {
       for (let i = 1; i < ant.tour.length; i++) {
-        const trail = this.best.cost / ant.cost;
+        const trail = this.bestCost / ant.cost;
         this.pheromoneDelta[ant.tour[i - 1]][ant.tour[i]] += trail / this.ants.length;
       }
     }
@@ -166,9 +174,10 @@ export class AntColony {
         if (i === j) continue;
 
         this.pheromoneTrail[i][j] *= FADE;
-        this.pheromoneTrail[i][j] += this.pheromoneDelta[i][j];
+        const half = this.pheromoneDelta[i][j] / 2;
+        this.pheromoneTrail[i][j] += half;
+        this.pheromoneTrail[j][i] += half;
         this.pheromoneDelta[i][j] = 0;
-
       }
     }
   }

@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { AntColony } from "../tsp/Ant";
 import { getPathDynamic } from "../tsp/Dynamic";
-import { generateMatrix, generateNodes, nodesToSingleArray } from "../tsp/Util";
+import { generateMatrix, generateNodes, getMatrixPaths, getMatrixWeights, nodesToLines } from "../tsp/Util";
 import { Engine } from "./Engine";
 
-const SCALE = 10;
+const SCALE = 1;
 
 interface Size {
   width: number,
@@ -14,8 +14,11 @@ interface Size {
 function Visualizer({ width, height }: Size): JSX.Element {
   const engine = useRef<Engine | null>(null);
   const colony = useRef<AntColony | null>(null);
-  const nodes = generateNodes(20, SCALE);
+  const nodes = generateNodes(40, SCALE);
   const mat = generateMatrix(nodes);
+  const matPaths = getMatrixPaths(mat);
+  let bestTour: number[] = [];
+  let bestCost = Infinity;
 
   useEffect(() => {
     const canvas: HTMLCanvasElement = document.getElementById('webgl-canvas') as HTMLCanvasElement;
@@ -23,9 +26,9 @@ function Visualizer({ width, height }: Size): JSX.Element {
     canvas.height = height;
     engine.current = new Engine(canvas);
     engine.current.start();
-    colony.current = new AntColony(200, mat);
+    colony.current = new AntColony(10, mat);
     //console.log(getPathDynamic(mat, 0));
-  }, []);
+  }, [height, mat, width]);
 
   const start = () => {
     if (engine.current && colony.current) {
@@ -35,15 +38,22 @@ function Visualizer({ width, height }: Size): JSX.Element {
       }
       colony.current.finishTour();
       const { tour, cost } = colony.current.getBest();
-      engine.current.genNodeVAO(nodesToSingleArray(nodes, SCALE), tour);
+      if (cost < bestCost) {
+        bestCost = cost;
+        bestTour = tour;
+      }
+      const trail = getMatrixWeights(colony.current.getTrail(),  matPaths);
+      engine.current.genRouteVAO(nodesToLines(nodes, SCALE), bestTour);
+      engine.current.setWeights(trail.weights);
+      engine.current.genTrailVAO(nodesToLines(nodes, SCALE), trail.indices);
       console.log(cost);
-      console.log('---', colony.current.getTrailAvg());
+      //requestAnimationFrame(start);
     }
   }
 
   return (
     <div>
-      <canvas id='webgl-canvas' />
+      <canvas id='webgl-canvas' style={{ backgroundColor: 'black' }} />
       <button onClick={start}>piu</button>
     </div>
   );
