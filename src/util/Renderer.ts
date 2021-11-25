@@ -1,7 +1,7 @@
 import { getGLContext } from "../util/GL";
 import { Shader } from "../util/Shader";
 
-export class Engine {
+export class Renderer {
     private gl: WebGL2RenderingContext;
     private routeShader: Shader;
     private pheromoneShader: Shader;
@@ -9,7 +9,6 @@ export class Engine {
     private routeIndices: number;
     private trail: WebGLVertexArrayObject | null;
     private trailIndices: number;
-    private needsRedraw: boolean;
     private trailWeights: number[];
 
     constructor(canvas: HTMLCanvasElement) {
@@ -26,25 +25,17 @@ export class Engine {
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA);
         this.gl.disable(this.gl.DEPTH_TEST);
-        this.needsRedraw = true;
-    }
-
-    public start(): void {
-        this.loop();
     }
 
     public setWeights(weights: number[]): void {
         this.trailWeights = weights;
     }
 
-    private loop(): void {
-        if (this.needsRedraw) {
-            this.needsRedraw = false;
-            this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-            this.route && this.drawRoute();
-            this.trail && this.drawPheromones();
-        }
-        requestAnimationFrame(this.loop.bind(this));
+    public draw(): void {
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+        this.route && this.drawRoute();
+        this.trail && this.drawPheromones();
+        //requestAnimationFrame(this.loop.bind(this));
     }
 
     private drawPheromones(): void {
@@ -82,7 +73,6 @@ export class Engine {
 
         this.gl.bindVertexArray(null);
 
-        this.needsRedraw = true;
         return VAO;
     }
 

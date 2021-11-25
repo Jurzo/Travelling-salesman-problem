@@ -31,7 +31,7 @@ outer: while (true) {
     }
   }
   colony.finishTour();
-  const antBest = colony.getBest();
+  const antBest = colony.getBestAnt();
   if (dynamicRes !== null) {
     const diff = (antBest.cost / dynamicRes.cost) - 1;
     if (diff < 0.05) {

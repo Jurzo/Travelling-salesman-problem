@@ -111,7 +111,9 @@ export const getMatrixWeights =
   const indices: number[] = [];
   let max = 0;
   for (const pair of pairs) {
-    const sum = m[pair[0]][pair[1]] + m[pair[1]][pair[0]];
+    const i = pair[0];
+    const j = pair[1];
+    const sum = m[i][j] + m[j][i];
     if (sum > max) max = sum;
     weights.push(sum);
     indices.push(...pair);
