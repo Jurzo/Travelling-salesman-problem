@@ -1,5 +1,5 @@
-import { getGLContext } from "../util/GL";
-import { Shader } from "../util/Shader";
+import { getGLContext } from "./GL";
+import { Shader } from "./Shader";
 
 export class Renderer {
     private gl: WebGL2RenderingContext;
