@@ -1,8 +1,10 @@
 import { generateEmptyMatrix, fillMatrix } from "./Util";
 
 const PHEROMONE_POW = 1;
-const DIST_POW = 4;
-const FADE = 0.9;
+const DIST_POW = 2;
+const FADE = 0.5;
+
+const MAX_ITER = 200;
 
 interface Ant {
   current: number;
@@ -21,12 +23,16 @@ export class AntColony {
   private pheromoneTrail: number[][];
   private pheromoneDelta: number[][];
   private stage: number;
-  private best: {
+  private genBest: {
     idx: number,
     cost: number
   };
+  private bestCost: number;
+  private bestTour: number[];
 
   constructor(numAnts: number, distMatrix: number[][]) {
+    this.bestCost = Infinity;
+    this.bestTour = [];
     this.numAnts = numAnts;
     this.m = distMatrix;
     this.size = distMatrix.length;
@@ -34,15 +40,23 @@ export class AntColony {
     this.pheromoneTrail = generateEmptyMatrix(this.size);
     fillMatrix(this.pheromoneTrail, 1);
     this.pheromoneDelta = generateEmptyMatrix(this.size);
-    this.best = {
+    this.genBest = {
       idx: -1,
       cost: Infinity
     };
     this.stage = 0;
   }
 
-  public getBest(): Ant {
-    return this.ants[this.best.idx];
+  public getBestAnt(): Ant {
+    return this.ants[this.genBest.idx];
+  }
+
+  public getBestTour(): number[] {
+    return this.bestTour;
+  }
+
+  public getTrail(): number[][] {
+    return this.pheromoneTrail;
   }
 
   public getTrailAvg(): number {
@@ -117,16 +131,18 @@ export class AntColony {
       total += this.desirability(ant.current, n);
     }
     let next = 0;
+    let iter = 0;
     while (true) {
       next++;
+      iter++;
       if (next >= this.size) {
         next = 0;
       };
       if (ant.visited[next] === 1) continue;
 
-      const weight = this.desirability(ant.current, next) / total;
+      const weight  = this.desirability(ant.current, next) / total;
       const rand = Math.random();
-      if (rand < weight) {
+      if (rand < weight || iter >= MAX_ITER) {
         break;
       };
     }
@@ -140,16 +156,21 @@ export class AntColony {
   public finishTour(): void {
     for (let i = 0; i < this.ants.length; i++) {
       const ant = this.ants[i];
-      if (ant.cost < this.best.cost) {
-        this.best.cost = ant.cost;
-        this.best.idx = i;
+      if (ant.cost < this.genBest.cost) {
+        this.genBest.cost = ant.cost;
+        this.genBest.idx = i;
       }
     }
 
+    if (this.genBest.cost < this.bestCost) {
+      this.bestCost = this.genBest.cost;
+      this.bestTour = this.ants[this.genBest.idx].tour;
+    };
+
     for (const ant of this.ants) {
       for (let i = 1; i < ant.tour.length; i++) {
-        const trail = this.best.cost / ant.cost;
-        this.pheromoneDelta[ant.tour[i - 1]][ant.tour[i]] += trail / this.ants.length;
+        const trail = this.bestCost / ant.cost;
+        this.pheromoneDelta[ant.tour[i - 1]][ant.tour[i]] += trail;
       }
     }
     this.stage = 0;
@@ -166,9 +187,10 @@ export class AntColony {
         if (i === j) continue;
 
         this.pheromoneTrail[i][j] *= FADE;
-        this.pheromoneTrail[i][j] += this.pheromoneDelta[i][j];
+        const half = this.pheromoneDelta[i][j] / 2;
+        this.pheromoneTrail[i][j] += half;
+        this.pheromoneTrail[j][i] += half;
         this.pheromoneDelta[i][j] = 0;
-
       }
     }
   }

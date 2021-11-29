@@ -93,11 +93,50 @@ export const permutator = (inputArr: number[]): number[][] => {
   return result;
 }
 
-export const nodesToSingleArray = (nodes: [number, number][], scale: number): number[] => {
+export const nodesToLines = (nodes: [number, number][], scale: number): number[] => {
   const arr: number[] = [];
   nodes.forEach(node => {
     arr.push(node[0] / scale);
     arr.push(node[1] / scale);
   });
   return arr;
+}
+
+export const getMatrixWeights =
+(m: number[][], pairs: [number, number][]): {
+  weights: number[],
+  indices: number[]
+} => {
+  const weights: number[] = [];
+  const indices: number[] = [];
+  let max = 0;
+  for (const pair of pairs) {
+    const i = pair[0];
+    const j = pair[1];
+    const sum = m[i][j] + m[j][i];
+    if (sum > max) max = sum;
+    weights.push(sum);
+    indices.push(...pair);
+  }
+  return {
+    weights: scaleArray(weights, 1 / max),
+    indices: indices
+  };
+}
+
+export const getMatrixPaths = (m: number[][]): [number, number][] => {
+  const nodes: [number, number][] = [];
+  const length = m.length;
+
+  for (let i = 0; i < length; i++) {
+    for (let j = i + 1; j < length; j++) {
+      nodes.push([i, j]);
+    }
+  }
+
+  return nodes;
+}
+
+const scaleArray = (arr: number[], scale: number): number[] => {
+  return arr.map(num => num * scale);
 }
