@@ -1,12 +1,12 @@
-export class PermutationIterator<Type> {
-  private list: Type[];
-  private temp1: Type[];
-  private temp2: Type[];
+export class PermutationIterator<T> implements Iterator<T[]> {
+  private list: T[];
+  private temp1: T[];
+  private temp2: T[];
   private stack: number[];
   private index: number;
   private size: number;
 
-  constructor(list: Type[]) {
+  constructor(list: T[]) {
     this.list = list;
     this.size = list.length;
     this.temp1 = [];
@@ -20,24 +20,20 @@ export class PermutationIterator<Type> {
     this.index = 0;
   }
 
-  [Symbol.iterator]() {
-    return {
-      next: () => {
-        if (this.temp1.length > 0) {
-          const value = this.getNext();
-          return { value: value, done: false };
-        }
-        return { done: true }
-      }
+  public next(): IteratorResult<T[]> {
+    if (this.temp1.length > 0) {
+      const value = this.getNext();
+      return { value: value, done: false }
     }
+    return { value: [], done: true }
   }
 
-  getNext(): Type[] {
+  private getNext(): T[] {
     this.update();
     return this.temp2;
   }
 
-  update() {
+  private update() {
     let done = true;
 
     while (this.index < this.size) {
@@ -64,7 +60,7 @@ export class PermutationIterator<Type> {
     }
   }
 
-  swap(i: number, j: number) {
+  private swap(i: number, j: number) {
     const temp = this.temp2[i];
     this.temp2[i] = this.temp2[j];
     this.temp2[j] = temp;

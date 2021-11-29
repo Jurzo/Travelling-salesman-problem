@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AntColony } from "../tsp/Ant";
+import { BruteForceSolver } from "../tsp/Brute";
 import { getPathDynamic } from "../tsp/Dynamic";
 import { generateMatrix, generateNodes, getMatrixPaths, getMatrixWeights, nodesToLines } from "../tsp/Util";
 import { Renderer } from "../util/Renderer";
@@ -13,12 +14,14 @@ export class Visualizer {
   private colony: AntColony;
   private renderer: Renderer;
   private running: boolean;
+  private bruteSolver: BruteForceSolver;
 
   constructor(renderer: Renderer, amount: number) {
     this.nodes = generateNodes(amount, SCALE);
     this.mat = generateMatrix(this.nodes);
     this.matPaths = getMatrixPaths(this.mat);
     this.colony = new AntColony(40, this.mat);
+    this.bruteSolver = new BruteForceSolver(this.mat, amount);
     this.renderer = renderer;
     this.running = false;
   }
@@ -41,6 +44,8 @@ export class Visualizer {
       this.renderer.genTrailVAO(nodesToLines(this.nodes, SCALE), trail.indices);
       this.renderer.draw();
       this.running && requestAnimationFrame(this.loop.bind( this ));
+      for (let i = 0; i < 10; i++)
+        console.log(this.bruteSolver.next().value);
     }
 }
 
