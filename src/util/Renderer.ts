@@ -6,31 +6,15 @@ export class Renderer {
     private routeShader: Shader;
     private pheromoneShader: Shader;
 
-    private antVAO: WebGLVertexArrayObject | null;
-    private antIndices: number;
-
-    private pheromoneVAO: WebGLVertexArrayObject | null;
-    private pheromoneIndices: number;
-    private pheromoneWeights: number[];
-
     constructor(canvas: HTMLCanvasElement) {
         this.gl = getGLContext(canvas);
         this.routeShader = this.loadShaders(routeVS, routeFS, 'route');
         this.pheromoneShader = this.loadShaders(pheromoneVS, pheromoneFS, 'trail');
-        this.antVAO = null;
-        this.antIndices = 0;
-        this.pheromoneVAO = null;
-        this.pheromoneIndices = 0;
-        this.pheromoneWeights = [];
         this.gl.clearColor(0, 0, 0, 1);
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA);
         this.gl.disable(this.gl.DEPTH_TEST);
-    }
-
-    public setWeights(weights: number[]): void {
-        this.pheromoneWeights = weights;
     }
 
     public clear(): void {

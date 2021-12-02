@@ -3,7 +3,7 @@ import { PermutationIterator } from "../util/PermutationIterator";
 
 interface TourResult {
   dist: number;
-  tour: number[] | null;
+  tour: number[];
   current: number;
   last: number;
 }
@@ -30,7 +30,11 @@ export class BruteForceSolver implements Iterator<TourResult>{
     };
   }
 
-  public next(): IteratorResult<TourResult> {
+  get bestTour(): TourResult {
+    return this.best;
+  }
+
+  public next(): IteratorResult<TourResult, TourResult> {
     const { value, done } = this.iterator.next();
     if (done) {
       return {

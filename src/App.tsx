@@ -3,12 +3,12 @@ import './App.css';
 import Visualizer from './components/Visualizer';
 import { Renderer } from './util/Renderer';
 
-const WIDTH = 600;
+const WIDTH = 900;
 const HEIGHT = 600;
 
 
 function App() {
-  const [amount, setAmount] = useState(8);
+  const [amount, setAmount] = useState(10);
   const [running, setRunning] = useState(false);
   const renderer = useRef<Renderer | null>(null);
   const visualizer = useRef<Visualizer | null>(null);
@@ -19,7 +19,7 @@ function App() {
     canvas.height = HEIGHT;
     renderer.current = new Renderer(canvas);
     visualizer.current = new Visualizer(renderer.current, amount);
-  }, []);
+  }, [amount]);
 
   return (
     <div>
