@@ -67,7 +67,7 @@ export class BruteForceSolver implements Iterator<TourResult>{
 export const getPathBrute =
   (m: number[][], S: number, N: number): {
     cost: number,
-    route: number[]
+    tour: number[]
   } => {
     const nodes: number[] = [];
     for (let i = 0; i < N; i++) {
@@ -75,30 +75,30 @@ export const getPathBrute =
       nodes.push(i);
     }
 
-    const routes: number[][] = permutator(nodes);
+    const tours: number[][] = permutator(nodes);
     let best: number[] = [];
     let minDist: number = Infinity;
 
-    for (const route of routes) {
-      route.unshift(S);
-      route.push(S);
-      const dist = getDist(m, route);
+    for (const tour of tours) {
+      tour.unshift(S);
+      tour.push(S);
+      const dist = getDist(m, tour);
       if (dist < minDist) {
         minDist = dist;
-        best = route;
+        best = tour;
       }
     }
 
     return {
       cost: minDist,
-      route: best
+      tour: best
     };
   }
 
-const getDist = (m: number[][], route: number[]): number => {
+const getDist = (m: number[][], tour: number[]): number => {
   let dist = 0;
-  for (let i = 0; i < route.length - 1; i++) {
-    dist += m[route[i]][route[i + 1]];
+  for (let i = 0; i < tour.length - 1; i++) {
+    dist += m[tour[i]][tour[i + 1]];
   }
   return dist;
 }
