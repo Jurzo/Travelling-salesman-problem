@@ -21,7 +21,6 @@ export class BruteForceSolver implements Iterator<TourResult>{
       nodes.push(i);
       last *= i;
     }
-    last *= N;
     this.iterator = new PermutationIterator<number>(nodes);
     this.best = {
       dist: Infinity,
@@ -39,16 +38,25 @@ export class BruteForceSolver implements Iterator<TourResult>{
         done: done
       }
     }
-    const dist = getDist(this.m, value, true);
+    this.best.current++;
+    const tour = this.addStart(value);
+    const dist = getDist(this.m, tour);
     if (dist < this.best.dist) {
       this.best.dist = dist;
-      this.best.tour = value;
+      this.best.tour = tour;
     }
-    this.best.current++;
     return {
       value: this.best,
       done: false
     }
+  }
+
+  private addStart(tour: number[]): number[] {
+    const complete: number[] = [];
+    complete.push(0);
+    tour.forEach(node => complete.push(node));
+    complete.push(0);
+    return complete;
   }
 }
 
@@ -83,14 +91,10 @@ export const getPathBrute =
     };
   }
 
-const getDist = (m: number[][], route: number[], addStart = false): number => {
+const getDist = (m: number[][], route: number[]): number => {
   let dist = 0;
   for (let i = 0; i < route.length - 1; i++) {
     dist += m[route[i]][route[i + 1]];
-  }
-  if (addStart) {
-    dist += m[0][route[0]];
-    dist += m[route.length - 1][0];
   }
   return dist;
 }

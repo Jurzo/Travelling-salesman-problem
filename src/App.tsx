@@ -8,7 +8,7 @@ const HEIGHT = 600;
 
 
 function App() {
-  const [amount, setAmount] = useState(60);
+  const [amount, setAmount] = useState(8);
   const [running, setRunning] = useState(false);
   const renderer = useRef<Renderer | null>(null);
   const visualizer = useRef<Visualizer | null>(null);

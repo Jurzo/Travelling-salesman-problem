@@ -55,6 +55,10 @@ export class AntColony {
     return this.bestTour;
   }
 
+  public getBestCost(): number {
+    return this.bestCost;
+  }
+
   public getTrail(): number[][] {
     return this.pheromoneTrail;
   }

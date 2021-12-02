@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from "react";
 import { AntColony } from "../tsp/Ant";
 import { BruteForceSolver } from "../tsp/Brute";
 import { getPathDynamic } from "../tsp/Dynamic";
@@ -16,6 +15,9 @@ export class Visualizer {
   private running: boolean;
   private bruteSolver: BruteForceSolver;
 
+  private routeVAO: WebGLVertexArrayObject;
+  private pheromoneVAO: WebGLVertexArrayObject;
+
   constructor(renderer: Renderer, amount: number) {
     this.nodes = generateNodes(amount, SCALE);
     this.mat = generateMatrix(this.nodes);
@@ -24,6 +26,10 @@ export class Visualizer {
     this.bruteSolver = new BruteForceSolver(this.mat, amount);
     this.renderer = renderer;
     this.running = false;
+
+    const verts = nodesToLines(this.nodes, SCALE);
+    this.routeVAO = this.renderer.genVAO(verts);
+    this.pheromoneVAO = this.renderer.genVAO(verts);
   }
 
   toggle(state: boolean): void {
@@ -37,15 +43,24 @@ export class Visualizer {
         if (this.colony.travel()) break;
       }
       this.colony.finishTour();
-      const { tour, cost } = this.colony.getBestAnt();
+      const tour = this.colony.getBestTour();
       const trail = getMatrixWeights(this.colony.getTrail(),  this.matPaths);
-      this.renderer.genRouteVAO(nodesToLines(this.nodes, SCALE), this.colony.getBestTour());
+
+      this.renderer.genIndexData(this.routeVAO, tour);
+      this.renderer.genIndexData(this.pheromoneVAO, trail.indices);
+      this.renderer.clear();
+      this.renderer.drawRoute(this.routeVAO, tour.length, [0.5, 0.5], 0.5);
+      this.renderer.drawPheromones(this.pheromoneVAO, trail.indices.length, trail.weights, [-0.5, 0.5], 0.5);
+
+      /* this.renderer.genRouteVAO(nodesToLines(this.nodes, SCALE), this.colony.getBestTour());
       this.renderer.setWeights(trail.weights);
       this.renderer.genTrailVAO(nodesToLines(this.nodes, SCALE), trail.indices);
-      this.renderer.draw();
+      this.renderer.draw(); */
       this.running && requestAnimationFrame(this.loop.bind( this ));
       for (let i = 0; i < 10; i++)
-        console.log(this.bruteSolver.next().value);
+        this.bruteSolver.next();
+      console.log(this.bruteSolver.next().value);
+      console.log(this.colony.getBestCost());
     }
 }
 
