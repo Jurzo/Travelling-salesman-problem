@@ -47,6 +47,15 @@ export class Shader {
         this.gl.uniform2fv(loc, vec);
     }
 
+    public setVec3(vec: [number, number, number], name: string): void {
+        const loc = this.gl.getUniformLocation(this.program, name);
+        if (!loc) {
+            console.error(`Uniform ${name} not found on shader ${this.name}`);
+            return;
+        };
+        this.gl.uniform3fv(loc, vec);
+    }
+
     private loadShader(source: string, shaderType: number): WebGLShader {
         const shader: WebGLShader = this.gl.createShader(shaderType)!;
         this.gl.shaderSource(shader, source);

@@ -67,7 +67,8 @@ export class BruteForceSolver implements Iterator<TourResult>{
 export const getPathBrute =
   (m: number[][], S: number, N: number): {
     cost: number,
-    tour: number[]
+    tour: number[],
+    iterations: number
   } => {
     const nodes: number[] = [];
     for (let i = 0; i < N; i++) {
@@ -91,7 +92,8 @@ export const getPathBrute =
 
     return {
       cost: minDist,
-      tour: best
+      tour: best,
+      iterations: tours.length
     };
   }
 

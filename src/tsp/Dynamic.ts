@@ -159,7 +159,7 @@ export const getPathDynamic =
   (m: number[][], S: number): {
     cost: number,
     tour: number[]
-  } | null => {
+  } => {
     const length = m.length;
     const memo: Memo[] = [];
     for (let i = 0; i < length; i++) {

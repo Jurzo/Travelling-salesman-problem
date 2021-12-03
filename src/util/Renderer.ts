@@ -33,11 +33,12 @@ export class Renderer {
         this.gl.bindVertexArray(null);
     }
 
-    public drawRoute(VAO: WebGLVertexArrayObject, numIndices: number, offset: [number, number] = [0, 0], scale = 1): void {
+    public drawRoute(VAO: WebGLVertexArrayObject, numIndices: number, offset: [number, number] = [0, 0], scale = 1, color: [number, number, number] = [1, 1, 1]): void {
         this.gl.useProgram(this.routeShader.getProgram());
         this.gl.bindVertexArray(VAO);
         this.routeShader.setFloat(scale, 'scale');
         this.routeShader.setVec2(offset, 'uOffset');
+        this.routeShader.setVec3(color, 'uColor');
         this.gl.drawElements(this.gl.POINTS, numIndices, this.gl.UNSIGNED_SHORT, 0);
         this.gl.drawElements(this.gl.LINE_STRIP, numIndices, this.gl.UNSIGNED_SHORT, 0);
         this.gl.bindVertexArray(null);
@@ -92,8 +93,10 @@ const routeFS =
 precision highp float;
 out vec4 fragColor;
 
+uniform vec3 uColor;
+
 void main() {
-    fragColor = vec4(1.0);
+    fragColor = vec4(uColor, 1.0);
 }`;
 
 const pheromoneVS =
@@ -116,5 +119,5 @@ out vec4 fragColor;
 uniform float weight;
 
 void main() {
-    fragColor = vec4(1.0, 0.0, 0.0, 1.0) * weight;
+    fragColor = vec4(1.0, 0.5, 0.5, 1.0) * weight;
 }`;
