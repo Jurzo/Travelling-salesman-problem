@@ -57,13 +57,21 @@ function App() {
         <button onClick={confirm}>
           {running ? 'stop' : 'solve'}
         </button>
-        <br />
         <input type="checkbox" id="dynamic" name="dynamic" checked={dynamic} onChange={() => setDynamic(!dynamic)} />
         <label htmlFor="dynamic">Solve path dynamically</label>
         <input type="checkbox" id="brute" name="brute" checked={increment} onChange={() => setIncrement(!increment)} />
         <label htmlFor="brute">Incrementally solve bruteforce approach</label>
       </div>
       <ResultBoard results={results} loops={loops} />
+      <div>
+        <p>Colors</p>
+        <ul>
+          <li>Green - Dynamic</li>
+          <li>Red - Bruteforce</li>
+          <li>Blue - Ants</li>
+          <li>Pink - Ant pheromone trail</li>
+        </ul>
+      </div>
     </div>
   );
 }
