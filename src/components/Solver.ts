@@ -114,6 +114,13 @@ export class Solver {
       this.pheromoneVAO = this.renderer.genVAO(verts);
       this.bruteVAO = this.renderer.genVAO(verts);
       this.dynamicVAO = this.renderer.genVAO(verts);
+
+      this.results = {
+        bruteforce: null,
+        dynamic: null,
+        ants: null
+      };
+      this.setResults(this.results);
     }
     this.incrementBrute = increment;
   }
@@ -228,11 +235,11 @@ export class Solver {
     this.renderer.genIndexData(this.pheromoneVAO, trail.indices);
 
     this.renderer.clear();
-    this.renderer.drawPheromones(this.pheromoneVAO, trail.indices.length, trail.weights, [-0.5, 0.5], 0.5);
-    this.renderer.drawRoute(this.routeVAO, tour.length, [0.5, 0.5], 0.5, [0, 0, 1]);
+    this.renderer.drawPheromones(this.pheromoneVAO, trail.indices.length, trail.weights, [-0.5, 0.5], 0.45);
+    this.renderer.drawRoute(this.routeVAO, tour.length, [0.5, 0.5], 0.45, [0, 0, 1]);
 
-    this.results['bruteforce'] && this.renderer.drawRoute(this.bruteVAO, this.size + 1, [-0.5, -0.5], 0.5, [1, 0, 0]);
-    this.dynamicSolved && this.renderer.drawRoute(this.dynamicVAO, this.size + 1, [0.5, -0.5], 0.5, [0, 1, 0]);
+    this.results['bruteforce'] && this.renderer.drawRoute(this.bruteVAO, this.size + 1, [-0.5, -0.5], 0.45, [1, 0, 0]);
+    this.dynamicSolved && this.renderer.drawRoute(this.dynamicVAO, this.size + 1, [0.5, -0.5], 0.45, [0, 1, 0]);
 
     const now = performance.now();
     if (now - this.lastUpdate >= 100) {

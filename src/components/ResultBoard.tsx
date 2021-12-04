@@ -17,24 +17,26 @@ function ResultBoard(props: MyProps) {
   return (
     <div style={{ display: 'block' }}>
       <table>
-        <tr>
-          <th>Type</th>
-          <th>Cost</th>
-          <th>Time</th>
-          <th>Iterations</th>
-        </tr>
-        {Object.keys(results).map(r => {
-          const result = results[r];
-          if (!result) return null;
-          return(
-            <tr key={result.type}>
-              <td>{result.type}</td>
-              <td>{result.cost.toFixed(4)}</td>
-              <td>{result.time.toFixed(3)}</td>
-              <td>{result.iteration}</td>
-            </tr>
-          );
-        })}
+        <tbody>
+          <tr>
+            <th>Type</th>
+            <th>Cost</th>
+            <th>Time spent calculating</th>
+            <th>Iterations</th>
+          </tr>
+          {Object.keys(results).map(r => {
+            const result = results[r];
+            if (!result) return null;
+            return (
+              <tr key={result.type}>
+                <td>{result.type}</td>
+                <td>{result.cost.toFixed(4)}</td>
+                <td>{result.time.toFixed(3)}</td>
+                <td>{result.iteration}</td>
+              </tr>
+            );
+          })}
+        </tbody>
       </table>
     </div>
   )
