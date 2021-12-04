@@ -8,11 +8,10 @@ interface MyProps {
 
 function ResultBoard(props: MyProps) {
   const [results, setResults] = useState<Results>({});
-  const [loops, setLoops] = useState(0);
+
 
   useEffect(() => {
     setResults(props.results);
-    setLoops(props.loops);
   }, [props.results, props.loops]);
 
   return (
@@ -22,13 +21,13 @@ function ResultBoard(props: MyProps) {
           <th>Type</th>
           <th>Cost</th>
           <th>Time</th>
-          <th>Iterations out of {loops}</th>
+          <th>Iterations</th>
         </tr>
         {Object.keys(results).map(r => {
           const result = results[r];
           if (!result) return null;
           return(
-            <tr>
+            <tr key={result.type}>
               <td>{result.type}</td>
               <td>{result.cost.toFixed(4)}</td>
               <td>{result.time.toFixed(3)}</td>

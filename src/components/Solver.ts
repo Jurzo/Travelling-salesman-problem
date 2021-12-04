@@ -24,7 +24,7 @@ export class Solver {
   private mat: number[][];
   private matPaths: [number, number][];
   private renderer: Renderer;
-  private running: boolean;
+  private iterating: boolean;
 
   private colony: AntColony;
   private colonyTotalTime: number;
@@ -35,7 +35,6 @@ export class Solver {
   private incrementBrute: boolean;
   private bruteSolved: boolean;
 
-  private dynamic: boolean;
   private dynamicSolved: boolean;
 
   private routeVAO: WebGLVertexArrayObject;
@@ -50,7 +49,7 @@ export class Solver {
   private setLoops: (x: number) => void;
   private loops: number;
 
-  constructor(renderer: Renderer, amount: number, increment: boolean, dynamic: boolean, setResults: (r: Results) => void, setLoops: (x: number) => void) {
+  constructor(renderer: Renderer, amount: number, increment: boolean, setResults: (r: Results) => void, setLoops: (x: number) => void) {
     this.size = amount;
     this.nodes = generateNodes(amount, SCALE);
     this.mat = generateMatrix(this.nodes);
@@ -65,11 +64,10 @@ export class Solver {
 
     this.bruteSolved = false;
 
-    this.dynamic = dynamic;
     this.dynamicSolved = false;
 
     this.renderer = renderer;
-    this.running = false;
+    this.iterating = false;
 
     const verts = nodesToLines(this.nodes, SCALE);
     this.routeVAO = this.renderer.genVAO(verts);
@@ -86,19 +84,18 @@ export class Solver {
     this.lastUpdate = performance.now();
     this.setLoops = setLoops;
     this.loops = 0;
+
+    this.loop();
   }
 
   public toggle(): void {
-    this.running = !this.running;
-    if (this.running) {
-      (!this.dynamicSolved && this.dynamic) && this.dynamicSolve();
-      (!this.bruteSolved && !this.incrementBrute) && this.bruteSolve();
-      this.loop();
-    }
+    this.iterating = !this.iterating;
   }
 
-  public setOptions(amount: number, increment: boolean, dynamic: boolean): void {
+  public setOptions(amount: number, increment: boolean): void {
     if (amount !== this.size) {
+      this.dynamicSolved = false;
+      this.bruteSolved = false;
       this.size = amount;
       this.nodes = generateNodes(amount, SCALE);
       this.mat = generateMatrix(this.nodes);
@@ -112,15 +109,12 @@ export class Solver {
 
       this.bruteSolved = false;
 
-      this.dynamicSolved = false;
-
       const verts = nodesToLines(this.nodes, SCALE);
       this.routeVAO = this.renderer.genVAO(verts);
       this.pheromoneVAO = this.renderer.genVAO(verts);
       this.bruteVAO = this.renderer.genVAO(verts);
       this.dynamicVAO = this.renderer.genVAO(verts);
     }
-    this.dynamic = dynamic;
     this.incrementBrute = increment;
   }
 
@@ -133,7 +127,8 @@ export class Solver {
     this.setLoops(this.loops);
   }
 
-  private bruteSolve() {
+  public bruteSolve(): void {
+    if (this.bruteSolved) return;
     const start = performance.now();
     const { tour, cost, iterations } = getPathBrute(this.mat, 0, this.size);
     const time = (performance.now() - start) * 0.001;
@@ -148,7 +143,8 @@ export class Solver {
     this.bruteSolved = true;
   }
 
-  private dynamicSolve() {
+  public dynamicSolve(): void {
+    if (this.dynamicSolved) return;
     const start = performance.now();
     const { tour, cost } = getPathDynamic(this.mat, 0);
     const time = (performance.now() - start) * 0.001;
@@ -161,37 +157,38 @@ export class Solver {
       iteration: 1
     });
     this.dynamicSolved = true;
+    this.renderer.genIndexData(this.dynamicVAO, tour);
   }
 
-  private loop = (): void => {
+  private bruteIterate(): void {
     let start = performance.now();
     let end = start;
-    this.loops++;
-
-    if (this.incrementBrute && !this.bruteSolved) {
-      let diff = 0;
-      while (diff <= 1 / 60000) {
-        const { done } = this.bruteSolver.next();
-        done && (this.bruteSolved = true);
-        end = performance.now();
-        diff = end - start;
-      }
-      this.bruteTotalTime += (end - start) * 0.001;
-      let iteration = 1;
-      if (this.results['bruteforce']) {
-        iteration += this.results['bruteforce'].iteration;
-      }
-      this.addResult({
-        type: 'bruteforce',
-        time: this.bruteTotalTime,
-        cost: this.bruteSolver.bestTour.dist,
-        tour: this.bruteSolver.bestTour.tour,
-        iteration: iteration
-      });
-      this.renderer.genIndexData(this.bruteVAO, this.bruteSolver.bestTour.tour);
+    let diff = 0;
+    let iteration = 0;
+    while (diff <= 1 / 60000 && !this.bruteSolved) {
+      const { done } = this.bruteSolver.next();
+      done && (this.bruteSolved = true);
+      end = performance.now();
+      diff = end - start;
+      iteration++;
     }
+    this.bruteTotalTime += (end - start) * 0.001;
+    if (this.results['bruteforce']) {
+      iteration += this.results['bruteforce'].iteration;
+    }
+    this.addResult({
+      type: 'bruteforce',
+      time: this.bruteTotalTime,
+      cost: this.bruteSolver.bestTour.dist,
+      tour: this.bruteSolver.bestTour.tour,
+      iteration: iteration
+    });
+    this.renderer.genIndexData(this.bruteVAO, this.bruteSolver.bestTour.tour);
+  }
 
-    start = performance.now();
+  private antsIterate(): void {
+    let start = performance.now();
+    let end = start;
     this.colony.initTour();
     while (true) {
       if (this.colony.travel()) break;
@@ -211,6 +208,20 @@ export class Solver {
       tour: tour,
       iteration: iteration
     });
+  }
+
+  private loop = (): void => {
+    this.loops++;
+
+    if (this.incrementBrute && !this.bruteSolved && this.iterating) {
+      this.bruteIterate();
+    }
+
+    if (this.iterating) {
+      this.antsIterate();
+    }
+    
+    const tour = this.colony.getBestTour();
     const trail = getMatrixWeights(this.colony.getTrail(), this.matPaths);
 
     this.renderer.genIndexData(this.routeVAO, tour);
@@ -219,15 +230,16 @@ export class Solver {
     this.renderer.clear();
     this.renderer.drawPheromones(this.pheromoneVAO, trail.indices.length, trail.weights, [-0.5, 0.5], 0.5);
     this.renderer.drawRoute(this.routeVAO, tour.length, [0.5, 0.5], 0.5, [0, 0, 1]);
-    this.renderer.drawRoute(this.bruteVAO, tour.length, [-0.5, -0.5], 0.5, [1, 0, 0]);
-    this.dynamic && this.renderer.drawRoute(this.dynamicVAO, tour.length, [0.5, -0.5], 0.5, [0, 1, 0]);
+
+    this.results['bruteforce'] && this.renderer.drawRoute(this.bruteVAO, this.size + 1, [-0.5, -0.5], 0.5, [1, 0, 0]);
+    this.dynamicSolved && this.renderer.drawRoute(this.dynamicVAO, this.size + 1, [0.5, -0.5], 0.5, [0, 1, 0]);
 
     const now = performance.now();
     if (now - this.lastUpdate >= 100) {
       this.updateResults();
       this.lastUpdate = now;
     }
-    this.running && requestAnimationFrame(this.loop.bind(this));
+    requestAnimationFrame(this.loop.bind(this));
   }
 }
 
