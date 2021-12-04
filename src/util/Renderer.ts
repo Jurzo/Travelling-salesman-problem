@@ -85,7 +85,7 @@ uniform float scale;
 void main() {
     vec3 offset = vec3(uOffset, 0.0);
     gl_Position = vec4(aPos * scale + offset, 1.0);
-    gl_PointSize = 5.0 * scale;
+    gl_PointSize = 10.0 * scale;
 }`;
 
 const routeFS =
