@@ -45,7 +45,7 @@ Based on video and pseudocode by WilliamFiset: https://youtu.be/cY4HiiFHO1o
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/Hanavesi/untitled-bus-game.git
+   git clone https://github.com/Jurzo/Travelling-salesman-problem.git
    ```
 2. Install NPM packages
    ```sh
