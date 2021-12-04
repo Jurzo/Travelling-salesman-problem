@@ -28,7 +28,7 @@ const solveDynamic = (m: number[][], memo: Memo[], S: number, N: number): void =
           const newDistance = memo[endNode][state] + m[endNode][next];
           if (newDistance < minDist) minDist = newDistance;
         }
-        // store the distance shortest distance to next 
+        // store the shortest distance to next 
         // with specified subset
         memo[next][subset] = minDist;
       }
